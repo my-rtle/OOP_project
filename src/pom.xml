@@ -1,0 +1,87 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <!-- Basic project coordinates -->
+  <groupId>com.example</groupId>
+  <artifactId>calendarfx</artifactId>
+  <version>1.0-SNAPSHOT</version>
+
+  <!-- Java and encoding configuration -->
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.source>21</maven.compiler.source>
+    <maven.compiler.target>21</maven.compiler.target>
+    <javafx.version>21</javafx.version>
+  </properties>
+
+  <!-- JitPack repository is required for CalendarFX (not available on Maven Central) -->
+  <repositories>
+    <repository>
+      <id>jitpack.io</id>
+      <url>https://jitpack.io</url>
+    </repository>
+  </repositories>
+
+  <dependencies>
+    <!-- JavaFX Controls (UI components) -->
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-controls</artifactId>
+      <version>${javafx.version}</version>
+    </dependency>
+
+    <!-- JavaFX FXML (optional) -->
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-fxml</artifactId>
+      <version>${javafx.version}</version>
+    </dependency>
+
+    <!-- CalendarFX (via JitPack) -->
+    <dependency>
+      <groupId>com.github.dlemmermann</groupId>
+      <artifactId>CalendarFX</artifactId>
+      <version>11.12.7</version>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <!-- JavaFX Maven Plugin for running JavaFX applications -->
+      <plugin>
+        <groupId>org.openjfx</groupId>
+        <artifactId>javafx-maven-plugin</artifactId>
+        <version>0.0.8</version>
+        <configuration>
+          <!-- Main class to launch (adjust to your application entry point) -->
+          <mainClass>app.Main</mainClass>
+        </configuration>
+      </plugin>
+
+      <!-- Maven Shade Plugin for creating a fat JAR (including all dependencies) -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>3.2.4</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <transformers>
+                <!-- Ensure the JAR has the correct main class defined -->
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                  <mainClass>app.Main</mainClass>
+                </transformer>
+              </transformers>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>
