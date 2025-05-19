@@ -1,1 +1,15 @@
+# Build output
 /target/
+
+# IntelliJ
+.idea/
+*.iml
+
+# Eclipse
+.classpath
+.project
+
+# System file
+.DS_Store
+*.log
+*.class
