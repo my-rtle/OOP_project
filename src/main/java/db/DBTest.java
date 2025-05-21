@@ -65,6 +65,23 @@ public class DBTest {
         System.out.println("\n=== SELECT TEST (after delete) ===");
         list = dao.getSchedulesByDate(testDate);
         System.out.println("Remaining count: " + list.size());
+
+        // 7) 제목 검색 테스트
+        System.out.println("\n=== SEARCH BY TITLE TEST ===");
+            // 테스트 데이터 삽입
+        dao.insertSchedule("검색 테스트 일정", testDate, "14:00:00");
+        dao.insertSchedule("테스트 회의", testDate, "15:00:00");
+        dao.insertSchedule("다른 일정", testDate, "16:00:00");
+
+            // "테스트"라는 단어가 포함된 일정 검색
+        List<Schedule> searchResults = dao.getSchedulesByTitle("테스트");
+        System.out.println("검색된 일정 수: " + searchResults.size());
+        for (Schedule s : searchResults) {
+            System.out.printf("id=%d, title=%s, date=%s, time=%s\n",
+                    s.getId(), s.getTitle(), s.getDate(), s.getStartTime());
+        }
+
+
     }
 }
 

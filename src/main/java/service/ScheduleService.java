@@ -20,4 +20,6 @@ public class ScheduleService {
 	public List<Schedule> getSchedulesByDate(String date) {
 		return scheduleDAO.getSchedulesByDate(date);
 	}
+
+	public List<Schedule> getSchedulesByTitle(String title){return scheduleDAO.getSchedulesByTitle(title);}
 }

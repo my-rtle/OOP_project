@@ -84,5 +84,34 @@ public class ScheduleDAO {
             e.printStackTrace();
         }
         return list;
+
+    }
+
+    // 5) 제목으로 일정 검색
+    public List<Schedule> getSchedulesByTitle(String title) {
+        String sql = "SELECT id, title, description, date, start_time, end_time " +
+                "FROM schedule WHERE title LIKE ?";
+        List<Schedule> list = new ArrayList<>();
+        try (Connection conn = DBConnector.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            // LIKE 조건에 와일드카드 추가 (부분 일치 검색)
+            stmt.setString(1, "%" + title + "%");
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                Schedule s = new Schedule();
+                s.setId(rs.getInt("id"));
+                s.setTitle(rs.getString("title"));
+                s.setDescription(rs.getString("description"));
+                s.setDate(rs.getString("date"));
+                s.setStartTime(rs.getString("start_time"));
+                s.setEndTime(rs.getString("end_time"));
+                list.add(s);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
     }
 }
+

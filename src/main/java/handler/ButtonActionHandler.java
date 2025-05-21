@@ -43,4 +43,13 @@ public class ButtonActionHandler {
             scheduleService.getSchedulesByDate(date);
         });
     }
+
+    // 제목으로 일정 검색 이벤트 바인드
+    public void bindSearchByTitleButton(JButton searchButton, InputProvider inputProvider) {
+        searchButton.addActionListener(e -> {
+            String title = inputProvider.getTitle();
+            scheduleService.getSchedulesByTitle(title);
+        });
+    }
+
 }
