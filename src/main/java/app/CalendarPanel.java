@@ -2,10 +2,11 @@ package app;
 
 import com.calendarfx.model.*;
 import com.calendarfx.view.CalendarView;
-
 import javafx.application.Platform;
-import javafx.scene.layout.StackPane;
-
+import javafx.scene.control.*;
+import javafx.scene.layout.*;
+import javafx.scene.input.MouseEvent;
+import service.ScheduleService;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -13,13 +14,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
-/**
- * 캡슐화된 일정 패널 컴포넌트로, 백엔드에서 new CalendarPanel로 바로 사용할 수 있습니다.
- */
-
-public class CalendarPanel extends StackPane {
+public class CalendarPanel extends VBox {
 
     private final CalendarView calendarView;
+    private final ScheduleService scheduleService = new ScheduleService();
+    private final Calendar defaultCal = new Calendar("My Schedule");
 
     public CalendarPanel() {
         Locale.setDefault(Locale.ENGLISH);
@@ -27,12 +26,10 @@ public class CalendarPanel extends StackPane {
         calendarView = new CalendarView();
         calendarView.setEnableTimeZoneSupport(true);
 
-        // 기본 캘린더 생성
-        Calendar defaultCal = new Calendar("My Schedule");
         defaultCal.setShortName("My");
         defaultCal.setStyle(Calendar.Style.STYLE1);
 
-        // 테스트 이벤트 추가
+        // 示例事件
         Entry<String> entry = new Entry<>("📌 Project Presentation");
         entry.changeStartDate(LocalDate.now());
         entry.changeStartTime(LocalTime.of(14, 0));
@@ -53,7 +50,7 @@ public class CalendarPanel extends StackPane {
         calendarView.setShowSourceTray(false);
         calendarView.setShowToolBar(true);
 
-        // 현재 시간 갱신 스레드
+        // 添加时间刷新线程
         Thread updateTimeThread = new Thread(() -> {
             while (true) {
                 Platform.runLater(() -> {
@@ -70,14 +67,61 @@ public class CalendarPanel extends StackPane {
         updateTimeThread.setDaemon(true);
         updateTimeThread.start();
 
+        // 👉 添加按钮栏
+        HBox buttonBox = createButtonBar();
 
-        this.getChildren().add(calendarView);
+        // 👉 整合布局（按钮在上，日历在下）
+        this.getChildren().addAll(buttonBox, calendarView);
+        this.setSpacing(10);
     }
 
-    public CalendarView getCalendarView() {
-        return calendarView;
-    }
+    private HBox createButtonBar() {
+        Button addButton = new Button("Add");
+        Button deleteButton = new Button("Delete");
+        Button updateButton = new Button("Update");
+        Button searchByDateButton = new Button("Search by Date");
+        Button searchByTitleButton = new Button("Search by Title");
 
+        addButton.setOnAction(e -> {
+            // 示例：添加到日历，并调用后端
+            Entry<String> newEntry = new Entry<>("📝 New Task");
+            newEntry.changeStartDate(LocalDate.now());
+            newEntry.changeStartTime(LocalTime.of(10, 0));
+            newEntry.changeEndTime(LocalTime.of(11, 0));
+            defaultCal.addEntry(newEntry);
+
+            scheduleService.addSchedule("New Task", LocalDate.now().toString(), "10:00");
+        });
+
+        deleteButton.setOnAction(e -> {
+            List<Entry<?>> entries = getAllEntries();
+            if (!entries.isEmpty()) {
+                Entry<?> last = entries.get(entries.size() - 1);
+                defaultCal.removeEntry(last);
+                scheduleService.deleteSchedule(last.hashCode()); // 示例：以 hashCode 模拟 ID
+            }
+        });
+
+        updateButton.setOnAction(e -> {
+            List<Entry<?>> entries = getAllEntries();
+            if (!entries.isEmpty()) {
+                Entry<?> entry = entries.get(0);
+                entry.setTitle("🛠 Updated Task");
+                scheduleService.updateSchedule(entry.hashCode(), "Updated Task", LocalDate.now().toString(), "12:00", "13:00");
+            }
+        });
+
+        searchByDateButton.setOnAction(e -> {
+            scheduleService.getSchedulesByDate(LocalDate.now().toString());
+        });
+
+        searchByTitleButton.setOnAction(e -> {
+            scheduleService.getSchedulesByTitle("Task");
+        });
+
+        HBox box = new HBox(10, addButton, deleteButton, updateButton, searchByDateButton, searchByTitleButton);
+        return box;
+    }
 
     public List<Entry<?>> getAllEntries() {
         return calendarView.getCalendarSources().stream()
@@ -85,4 +129,9 @@ public class CalendarPanel extends StackPane {
                 .flatMap(calendar -> ((List<Entry<?>>) (List<?>) calendar.findEntries("")).stream())
                 .collect(Collectors.toList());
     }
+
+    public CalendarView getCalendarView() {
+        return calendarView;
+    }
 }
+
