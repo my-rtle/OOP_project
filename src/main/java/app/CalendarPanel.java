@@ -83,15 +83,31 @@ public class CalendarPanel extends VBox {
         Button searchByTitleButton = new Button("Search by Title");
 
         addButton.setOnAction(e -> {
-            // 示例：添加到日历，并调用后端
-            Entry<String> newEntry = new Entry<>("📝 New Task");
+            Entry<String> newEntry = new Entry<>();
             newEntry.changeStartDate(LocalDate.now());
             newEntry.changeStartTime(LocalTime.of(10, 0));
             newEntry.changeEndTime(LocalTime.of(11, 0));
-            defaultCal.addEntry(newEntry);
 
-            scheduleService.addSchedule("New Task", LocalDate.now().toString(), "10:00");
+            // Pop up dialog to get user-entered task title
+            TextInputDialog dialog = new TextInputDialog();
+            dialog.setTitle("Add New Task");
+            dialog.setHeaderText("Please enter the task title:");
+            dialog.setContentText("Title:");
+
+
+            dialog.showAndWait().ifPresent(title -> {
+                newEntry.setTitle(title);
+                defaultCal.addEntry(newEntry);
+
+                // ⬇️ 保存到数据库时使用用户填写的标题
+                scheduleService.addSchedule(
+                        title,
+                        LocalDate.now().toString(),
+                        "10:00"
+                );
+            });
         });
+
 
         deleteButton.setOnAction(e -> {
             List<Entry<?>> entries = getAllEntries();
@@ -106,7 +122,7 @@ public class CalendarPanel extends VBox {
             List<Entry<?>> entries = getAllEntries();
             if (!entries.isEmpty()) {
                 Entry<?> entry = entries.get(0);
-                entry.setTitle("🛠 Updated Task");
+//                entry.setTitle("🛠 Updated Task");
                 scheduleService.updateSchedule(entry.hashCode(), "Updated Task", LocalDate.now().toString(), "12:00", "13:00");
             }
         });
