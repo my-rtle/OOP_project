@@ -128,12 +128,25 @@ public class CalendarPanel extends VBox {
         });
 
         searchByDateButton.setOnAction(e -> {
-            scheduleService.getSchedulesByDate(LocalDate.now().toString());
+            TextInputDialog dialog = new TextInputDialog();
+            dialog.setTitle("Search by Date");
+            dialog.setHeaderText("Enter the date to search (format: yyyy-MM-dd):");
+            dialog.setContentText("Date:");
+            dialog.showAndWait().ifPresent(date -> {
+                scheduleService.getSchedulesByDate(date);
+            });
         });
 
         searchByTitleButton.setOnAction(e -> {
-            scheduleService.getSchedulesByTitle("Task");
+            TextInputDialog dialog = new TextInputDialog();
+            dialog.setTitle("Search by Title");
+            dialog.setHeaderText("Enter the title to search:");
+            dialog.setContentText("Title:");
+            dialog.showAndWait().ifPresent(title -> {
+                scheduleService.getSchedulesByTitle(title);
+            });
         });
+
 
         HBox box = new HBox(10, addButton, deleteButton, updateButton, searchByDateButton, searchByTitleButton);
         return box;
